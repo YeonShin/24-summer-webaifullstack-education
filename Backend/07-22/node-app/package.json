@@ -9,6 +9,7 @@
   "license": "ISC",
   "description": "나의 첫 노드 앱",
   "dependencies": {
+    "dotenv": "^16.4.5",
     "moment": "^2.30.1"
   }
 }
