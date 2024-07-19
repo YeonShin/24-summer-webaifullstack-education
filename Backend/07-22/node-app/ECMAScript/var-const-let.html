@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>ECMAScript-신규변수사용법{const/let}</h1>
+
+    <script>
+        // var는 전통적인(올드한) 변수선언 예약어
+        var userName="김연신";
+        var age = 50;
+
+        // 기본상품 가격
+        var price = 5000;
+        var isMale = true;
+
+        // 기본 배송비 설정
+        // 비지니스 규칙 : 기본 배송비는 한 번 값이 할당되면 변경이 안되어야 한다.(상수)
+        var baseDelyFee = 3000;
+        console.log("기본배송비: var", baseDelyFee);
+
+        baseDelyFee = 5000;
+        // console은 웹브라우저 개발자도구내 콘솔탭에 로그를 찍는 기능입니다.()
+        console.log("기본배송비: var", baseDelyFee);
+
+        // var로 선언된 벼수는 상수개념이 없어서 언제든지 값을 변경할 수 있습니다.
+        // 그래서 2015년도(ES6-ES2015 신규 자바스크립트 문법) 상수 개념 도입(const 상수 도입됨...)
+
+        const newBaseDelyFee = 3000;
+
+        // newBaseDelyFee = 5000;
+
+        let totalPayPrice = 0;
+
+        console.log("최초 총 결제비용:", totalPayPrice);
+
+        totalPayPrice += newBaseDelyFee;
+
+        totalPayPrice = totalPayPrice + price;
+
+
+
+        console.log("현재 총 결제비용:", totalPayPrice);
+
+        const region = "제주도";
+
+        if(region === "제주도") {
+            let alertMsg = "도서지역";
+        }
+        console.log("alertMsg:", alertMsg);
+
+    </script>
+</body>
+</html>
