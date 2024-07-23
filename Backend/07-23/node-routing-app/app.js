@@ -20,7 +20,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// 각종 라우터파일의 기본 호출결로를 설정한다.
+// 각종 라우터파일의 기본 호출경로를 설정한다.
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
