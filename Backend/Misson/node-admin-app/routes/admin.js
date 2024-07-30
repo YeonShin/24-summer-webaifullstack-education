@@ -79,8 +79,7 @@ router.post("/list", async (req, res) => {
   const admins = await db.Admin.findAll({ where: { admin_id: admin_id } });
 
   if(company_code != 9) {
-    query += ` AND company_code = ${}`
-    }
+
 
   //Step3:조회결과데이터 뷰에전달하기
   const searchOption = {
