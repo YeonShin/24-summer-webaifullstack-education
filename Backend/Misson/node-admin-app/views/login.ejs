@@ -20,19 +20,14 @@
 
     <div class="middle-box text-center loginscreen animated fadeInDown">
         <div>
-            <div>
-
-                <h1 class="logo-name">IN+</h1>
-
-            </div>
-            <h3>Welcome to IN+</h3>
-            <p>Login in. To see it in action.</p>
+            <h3>관리자 웹사이트에 오신걸 환영합니다.</h3>
+            <p>관리자 계정과 암호를 입력해주세요</p>
             <form class="m-t" role="form" action="/login" method="post">
                 <div class="form-group">
-                    <input type="text" class="form-control" placeholder="UserID" required="" name="userid">
+                    <input type="text" class="form-control" placeholder="Username" required="" name="admin_id">
                 </div>
                 <div class="form-group">
-                    <input type="password" name="password" class="form-control" placeholder="Password" required="">
+                    <input type="password" name="admin_password" class="form-control" placeholder="Password" required="">
                 </div>
                 <button type="submit" class="btn btn-primary block full-width m-b">로그인</button>
             </form>
@@ -44,6 +39,14 @@
     <script src="/js/jquery-3.1.1.min.js"></script>
     <script src="/js/popper.min.js"></script>
     <script src="/js/bootstrap.js"></script>
+
+    <script>
+        var loginResultCode = '<%=resultMsg.code%>';
+
+        if(loginResultCode == 401 || loginResultCode == 402) {
+            alert("<%=resultMsg.msg%>");
+        }
+    </script>
 
 </body>
 
