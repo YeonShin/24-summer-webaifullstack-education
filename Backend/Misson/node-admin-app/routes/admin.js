@@ -46,14 +46,14 @@ router.get("/list", async (req, res, next) => {
     ORDER BY reg_date DESC;
     `;
 
-
-
   const admins = await sequelize.query(query, {
     raw: true,
-    type: QueryTypes.SELECT
+    type: QueryTypes.SELECT,
   });
 
+  //예시코드: 해당 테이블의 전체 로우건수 조회하기
   const adminCount = await db.Admin.count();
+  console.log("관리자 테이블 전체 로우건수 조회:", adminCount);
 
   //step2: 관리자 계정목록 데이터 뷰파일 전달하기
   res.render("admin/list.ejs", {
@@ -76,19 +76,53 @@ router.post("/list", async (req, res) => {
   const use_yn_code = req.body.use_yn_code;
 
   //Step2:조회옵션으로 관리자정보 조회하기
-  const admins = await db.Admin.findAll({ where: { admin_id: admin_id } });
+  // const admins = await db.Admin.findAll({ where: { admin_id: admin_id } });
 
-  if(company_code != 9) {
+  //예시코드 )순수 SQL쿠문을 DB서버에 전달해서 동일한 결과값 받아오기
+  let query = `SELECT 
+          admin_member_id,
+          admin_id,admin_name,
+          email,
+          company_code,
+          dept_name,
+          used_yn_code,
+          reg_date
+      FROM admin 
+      WHERE used_yn_code = 1 `;
 
+  //회사코드 추가 필터 조건 반영
+  if (company_code != 9) {
+    query += ` AND company_code = ${company_code} `;
+  }
 
-  //Step3:조회결과데이터 뷰에전달하기
-  const searchOption = {
-    company_code: company_code,
-    admin_id: admin_id,
-    use_yn_code: use_yn_code,
-  };
+  //관리자아이디 추가 필터조건 반영
+  if (admin_id.length > 0) {
+    query += ` AND admin_id Like '%${admin_id}%' `;
+  }
 
-  res.render("admin/list.ejs", { admins, moment, searchOption });
+  //관리자아이디 추가 필터조건 반영
+  if (use_yn_code != 9) {
+    query += ` AND used_yn_code = ${use_yn_code} `;
+  }
+
+  query += " ORDER BY reg_date DESC;";
+
+  //sql쿼리를 직접 수행하는 구문
+  const admins = await sequelize.query(query, {
+    raw: true,
+    type: QueryTypes.SELECT,
+  });
+
+  if (company_code != 9) {
+    //Step3:조회결과데이터 뷰에전달하기
+    const searchOption = {
+      company_code: company_code,
+      admin_id: admin_id,
+      use_yn_code: use_yn_code,
+    };
+
+    res.render("admin/list.ejs", { admins, moment, searchOption });
+  }
 });
 
 /*

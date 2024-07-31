@@ -1,8 +1,10 @@
 var express = require("express");
 var router = express.Router();
 
+//관리자 암호를 단방향암호화(해시알고리즘) 하기위해 bcryptjs패키지 참조하기 
 var bcrypt = require('bcryptjs');
 
+//ORM DB객체를 참조합니다.
 var db = require("../models/index.js");
 
 /* GET home page. */
