@@ -54,28 +54,28 @@
 				</div>
 				<div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12">
 					<div class="login-wrapper">
-						<form action="index.html">
+						<form id="loginForm">
 							<div class="login-screen">
 								<div class="login-body">
 									<a href="index.html" class="login-logo">
 										<img src="img/logo.svg" alt="Quick Chat">
 									</a>
-									<h6>Welcome back,<br>Please login to your account.</h6>
+									<h6>환영합니다<br>로그인을 진행해주세요</h6>
 									<div class="field-wrapper">
-										<input type="email" autofocus>
-										<div class="field-placeholder">Email ID</div>
+										<input type="email" autofocus id="email">
+										<div class="field-placeholder">메일주소</div>
 									</div>
 									<div class="field-wrapper mb-3">
-										<input type="password">
-										<div class="field-placeholder">Password</div>
+										<input type="password" id="password">
+										<div class="field-placeholder">암호</div>
 									</div>
 									<div class="actions">
-										<a href="forgot-password.html">Forgot password?</a>
-										<button type="submit" class="btn btn-primary">Login</button>
+										<a href="forgot-password.html">암호를 잊으셨나요?</a>
+										<button type="submit" class="btn btn-primary">로그인</button>
 									</div>
 								</div>
 								<div class="login-footer">
-									<span class="additional-link">No Account? <a href="signup.html" class="btn btn-secondary">Sign Up</a></span>
+									<span class="additional-link">계정이 없으신가요? <a href="signup.html" class="btn btn-secondary">회원가입</a></span>
 								</div>
 							</div>
 						</form>
@@ -88,6 +88,54 @@
 		<!-- *************
 			************ Login container end *************
 		************* -->
+		<script src="js/jquery.min.js"></script>
+		<script>
+			$("#email").focus();
 
+			// loginForm에서 onSubmit 이벤트가 발생하면 처리할 업무로직 구현
+			$("#loginForm").submit(function(event) {
+				// onSubmit() 이벤트 발생을 취소해서 화면 껌뻑거림을 사전에 방지한다.
+				event.preventDefault();
+
+				// Step1: 사용자 입력값의 유효성 검증하기
+				if ($("#email").val() == "") {
+					alert("이메일을 입력해주세요.");
+					$("#email").focus();
+					return false;
+				};
+
+				if ($("#password").val() == "") {
+					alert("암호를 입력해주세요.");
+					$("#password").focus();
+					return false;
+				};
+
+				// Step2: 사용자 입력값을 UI요소에 추출해서 Json 데이터를 생성한다.
+				var member = {
+					email: $("#email").val(),
+					password: $("#password").val(),
+				};
+
+				// Step3: UI요소에서 추출한 Json 데이터를 백엔드 RESTful API에 전달해서 회원가입 처리한다.
+				$.post("http://localhost:5000/api/member/login", member).done(function(result) {
+					console.log("백엔드에서의 처리 결과 값 확인하기", result);
+
+					if (result.code == 200) {
+						// Step4: 백엔드 데이터 처리결과에 따른 추가 정보를 사용자에게 전달한다.
+						alert("로그인에 성공했습니다!\n");
+						localStorage.setItem("chatMemberToken", result.data);
+						location.href = "./index.html";
+					} else if (result.code == 400) {
+						$("#email").val("");
+						$("#email").focus();
+						alert("존재하지 않는 이메일입니다.\n");
+					} else {
+						$("#password").val("");
+						$("#password").focus();
+						alert("암호가 일치하지 않습니다.\n");
+					}
+				});
+			})
+		</script>
 	</body>
 </html>

@@ -107,7 +107,7 @@
               <img src="img/settings.svg" alt="Settings" />
               <span class="nav-link-text">Settings</span>
             </a>
-            <a href="login.html" class="nav-link mt-auto">
+            <a href="login.html" class="nav-link mt-auto" id="logout">
               <img src="img/logout.svg" alt="Logout" />
             </a>
           </div>
@@ -2050,6 +2050,34 @@
 
     <!-- 아래부분이 프론트엔드 코딩영역입니다.웹브라우저에서 실행됩니다. -->
     <script>
+      // 웹페이지가 웹브라우저에 완전 로깅완료되는 시점에 백엔드 API를 호출해
+      // 현재 로그인한 사용자의 프로필 정보를 조회해온다.
+      $(document).ready(function() {
+        // 웹브라우저에 저장된 토큰값을 추출한다.
+        var jwtToken = localStorage.getItem("chatMemberToken");
+
+        // index.html 페이지는 반드시 로그인후 접속이 가능하며
+        // 로그인을 했으면 토큰값이 웹브라우저 로컬 스토리지에 저장되었을테니까
+        // 체크해서 없으면 로그인 페이지로 안내하기
+        if (jwtToken == undefined) {
+          location.href = "./login.html";
+        }
+
+        $.ajax({
+          type:'Get',
+          url: 'http://localhost:5000/api/member/profile',
+          headers:{Authorization: `Bearer ${jwtToken}`},
+          dataType: 'json',
+          success: function(result) {
+            console.log("프로필 정보 확인하기: ", result);
+          },
+          error: function(error) {
+            console.error("백엔드 API 호출에러 발생....", error);
+          }
+        });
+        
+      });
+
       //자바스크립트 정규식을 이용해 현재페이지 URL에서 전달받은 키값에 대한 쿼리스트링 값을 추출한다.
       //모든 개발언어는 정규식을 지원합니다.
       //정규식의 목적은 특정코딩 패턴을 통해서 원하는 결과값을 쉽고 빠르게 해결한다.
@@ -2128,6 +2156,12 @@
         //채팅이력에 수신 메시지 템플릿 추가하기
         $("#chatHistory").append(msgTemplate);
       });
+
+
+
+      $("#logout").click(function() {
+        localStorage.removeItem("chatMemberToken");
+      })
     </script>
   </body>
 </html>
