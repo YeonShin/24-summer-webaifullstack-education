@@ -4,6 +4,7 @@
 var express = require("express");
 var router = express.Router();
 var bcrypt = require("bcryptjs");
+const channel = require("../models/channel");
 
 //ORM db객체 참조하기
 var db = require("../models/index");
@@ -11,7 +12,25 @@ var db = require("../models/index");
 // jwt 토큰 생성을 위한 패키지 참조
 const jwt = require('jsonwebtoken');
 
-const channel = require("../models/channel");
+
+
+// 파일 업로드를 위한 multer 객체 참조하기
+var multer = require("multer");
+
+// 파일저장위치 지정
+var storage = multer.diskStorage({
+  destination(req, file, cb) {
+    cb(null, "public/upload/");
+  },
+  filename(req, file, cb) {
+    cb(null, `${Date.now()}__${file.originalname}`);
+  },
+});
+
+//일반 업로드처리 객체 생성
+var upload = multer({ storage: storage });
+
+
 
 /*
 - 신규 회원정보 등록처리 요청과 응답 라우팅메소드
@@ -187,6 +206,53 @@ router.get("/profile", async (req, res) => {
       };
 
       res.json(apiResult);
-})
+});
+
+/*
+- 사용자 프로필 사진 업로드 및 정보 처리 라우팅메소드
+- 호출주소: http://localhost:5000/api/member/profile/upload
+- 호출방식: Post
+- 응답결과: 프론트엔드에서 첨부한 이미지 파일을 업로드 처리하고 업로드된 정보를 반환한다.
+*/
+router.post("/profile/upload", upload.single('file'), async(req, res) => {
+  let apiResult = {
+    code: 400, //요청상태코드: 200:정상처리 400:요청리소스가 없을때 500:서버개발자코딩에러
+    data: null, //백엔드에서 프론트엔드로 전달한 데이터
+    msg: "", //처리결과 코멘트(백엔드개발자가 프론트엔드 개발자에게 알려주는 코멘트메시지)
+  };
+
+  try {
+    // Step1: 업로드된 파일 정보 추출하기
+    const uploadFile = req.file;
+
+    if (uploadFile) {
+      const filePath = `/upload/${uploadFile.filename}`;
+      const fileName = uploadFile.filename; // 서버에 업로드된 파일명
+      const originalFileName = uploadFile.originalname; // 사용자가 업로드한 파일명 (a.png)
+      const fileSize = uploadFile.size;
+      const mimeType = uploadFile.mimetype;
+  
+      const file = {
+        file_name: fileName,
+        file_path: filePath,
+        file_size: fileSize,
+        file_type: mimeType,
+      };
+
+      // Step2: 업로드된 파일 정보 반환하기
+      apiResult.code = 200;
+      apiResult.data = file;
+      apiResult.msg = "Ok";
+    }
+
+    
+  } catch (error) {
+    apiResult.code = 500;
+    apiResult.data = null;
+    apiResult.msg = "Server Error!";
+  }
+
+  res.json(apiResult);
+});
 
 module.exports = router;
