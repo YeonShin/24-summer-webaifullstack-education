@@ -1,9 +1,9 @@
 {
   "development": {
     "username": "root",
-    "password": "1234",
+    "password": "1q2w3e4r",
     "database": "edu_community",
-    "host": "127.0.0.1",
+    "host": "15.164.81.212",
     "dialect": "mysql"
   },
   "test": {
@@ -15,9 +15,9 @@
   },
   "production": {
     "username": "root",
-    "password": "1234",
+    "password": "1q2w3e4r",
     "database": "edu_community",
-    "host": "127.0.0.1",
+    "host": "15.164.81.212",
     "dialect": "mysql"
   }
 }
