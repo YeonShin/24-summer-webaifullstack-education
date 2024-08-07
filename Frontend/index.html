@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- 헤드 태그는 웹브라우저나 검색엔진 SWBot을 위한 추가정보제공 영역 -->
+     <!-- 웹브라우저에게 영어권 문자 외에도 유니코드 문자도 포함되어있음을 알려준다 -->
+    <meta charset="UTF-8">
+    <!-- 모바일 브라우저에서 기본 가로 해상도를 물리적 디바이스 가로 해상도를 기준으로 설정하고 확대 축소를 설정하느 기능 제공 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 웹브라우저에 탭에 표시되는 웹페이지 제목 표시 및 검색 엔진 SW에 제공된 
+     웹페이지의 제목정보제공 ***중요*** -->
+    <title>Document</title>
+
+    <link rel="stylesheet" href="./common.css">
+
+    <!-- 해당 페이지의 스타일 적용위한 스타일 정의 영역(임베디드된 스타일시트) -->
+    <style> 
+        h1 {
+            font-size: 30px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="color: blue;">메인 제목입니다.</h1>
+    <h2>부제목입니다.</h2>
+
+    <!--  해당 웹페이지의 기능을 구현하는 프론트엔드 기능 구현 영역입니다. -->
+    <script>
+        console.log("index.html 페이지가 로딩 되었습니다.");
+        console.error("페이지 로딩시 에러메시지 출력");
+        console.warn("페이지 로딩시 경고 메시지 출력");
+        console.info("페이지 로딩시 정보메시지 출력");
+
+        console.log("로직1 실행");
+    </script>
+</body>
+</html>
