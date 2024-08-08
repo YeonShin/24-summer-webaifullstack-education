@@ -12,3 +12,9 @@ function getCode(code) {
 console.log("getCode: ", getCode(1000));
 // 동일한 함수인데 문자를 전달하는 경우
 console.log("getCode: ", getCode("S-1000"));
+// 배열내의 값들에 대한 타입을 다양하게 지정하고 제한할 수 있다.
+var userData = ['홍길동', 40, false];
+var state = "open";
+var oddNumber = 3;
+// 할당할 수 없는 값을 지정하면 에러발생
+// let oddNumber2:OddNumberUnderTen = 2;
