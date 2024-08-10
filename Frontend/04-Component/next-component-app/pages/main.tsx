@@ -3,12 +3,17 @@ import Header from '@/components/header';
 import LogoContents from '@/components/logo-contents';
 import Guide from '@/components/guide';
 import { IGuide } from '@/interface/main';
+import { useState } from 'react';
 
 const inter = Inter({ subsets: ['latin'] });
 
 
 
 function Main() {
+  const [title, setTitle] = useState("메인 페이지");
+
+  const logoPath = '/next.svg';
+
   const guides:IGuide[] = [
     {
       href: 'https://nextjs.org/',
@@ -32,15 +37,23 @@ function Main() {
     },
   ];
 
+  const handleChildClick = (url: string) => {
+    console.log("이동할 URL 데이터:", url)
+  }
+
   return (
     <main
       className={`flex min-h-screen flex-col items-center justify-between p-24 ${inter.className}`}
     >
+      <h1>{title}</h1>
+
       {/* 헤더 컴포넌트 영역 */}
-      <Header />
+      <Header  mainPage="pages/main.tsx" onClick={handleChildClick}>
+        자식 컴포넌트 전달하기
+      </Header>
 
       {/* 로고 컴포넌트 영역 */}
-      <LogoContents />
+      <LogoContents logoPath={logoPath}/>
 
       {/* 가이드 컴포넌트 영역 */}
       <Guide guides={guides}/>
