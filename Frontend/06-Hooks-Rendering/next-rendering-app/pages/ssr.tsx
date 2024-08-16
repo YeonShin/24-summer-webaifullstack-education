@@ -1,25 +1,13 @@
-import IArticle from "@/interface/article";
-import { useState } from "react";
+//SSR(Server Side Rendering)은 최초로 해당 컴포넌트의 UI를 생성하는 위치가
+//사용자 요청시 서버에서 HTML+DATA 결과물을 동적으로 생성하고
+//동적으로 서버에서 만들어진 HTML소스를 웹브라우저로 가져와 해당 영역에 표시한다.
+//SEO(검색엔진 최적화시 주로 사용하거나 또는 CSR로딩 지연이 발생시 SSR로 대체가능)
 
-const SSR = () => {
-    //게시글 목록 상태 데이터 정의 및 초기값 세팅하기
-    const [articles, setArticles] = useState<IArticle[]>([]);
+import { IArticle, ArticleTypeCode, BoardTypeCode } from "@/interfaces/article";
 
-    //화면이 최초로 렌더링 되는시점(마운팅시점)을 캐치하기 위해 useEffect훅 사용하기
-    //useEffect(() => {
-    //최초 화면 렌더링(CSR) 되기전에 백엔드 API에서 게시글 목록 가져오기 구현
-    //동기 방식의 ECMAScript 표준 AJAX 통신 기능인 fecth를 이용해 데이터 가져오기
-  
-    //fetch("http://localhost:5000/api/article/list")
-    //  .then((res) => res.json())
-    //  .then((result) => {
-    //    console.log("백엔드 RTESFul API에서 전달된 게시글 데이터목록:", result);
-    //    setArticles(result.data);
-    //  });
-    //}, []);
-  
+const SSR = ({ articles }: { articles: IArticle[] }) => {
   return (
-<div>
+    <div>
       CSR-Client Side Rendering 예시코드
       <table className="w-full">
         <thead>
@@ -45,10 +33,18 @@ const SSR = () => {
       </table>
     </div>
   );
-}
+};
 
-export const getServerSideProps = async()=> {
-  
-}
+//SSR 구현을 위한 getServerSideProps()함수 호출하기
+//SSR 구현을 위한 이미 정해져 있는 getServerSideProps()함수의 기능만 구현해주면 됨
+//getServerSideProps()함수는 해당 컴포넌트를 최초로 화면에 렌더링시에 자동으로 먼저 호출됨
+//SSR실행순서: getServerSideProps()함수 실행 및 결과값 pros전달(서버에서 실행) -> 해당컴포넌트 실행(props)-서버에서실행->return 구문실행(jsx)-서버에서 실행 최종 결과화면 반화면
+//웹브라우저 표시...
+export const getServerSideProps = async () => {
+  //백엔드에서 게시글 데이터를 조회해와서 해당 컴포넌트의 props데이터 파라메터 형식으로 전달한다.
+  const res = await fetch("http://localhost:5000/api/article/list");
+  const result = await res.json();
+  return { props: { articles: result.data } };
+};
 
 export default SSR;
