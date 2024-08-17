@@ -3,7 +3,7 @@
     "username": "root",
     "password": "1q2w3e4r",
     "database": "edu_community",
-    "host": "15.164.81.212",
+    "host": "127.0.0.1",
     "dialect": "mysql"
   },
   "test": {
@@ -17,7 +17,7 @@
     "username": "root",
     "password": "1q2w3e4r",
     "database": "edu_community",
-    "host": "15.164.81.212",
+    "host": "127.0.0.1",
     "dialect": "mysql"
   }
 }

@@ -3,16 +3,16 @@
 //기본호출주소 정의는 app.js에서 정의한다.
 var express = require("express");
 var router = express.Router();
+
 var bcrypt = require("bcryptjs");
-const channel = require("../models/channel");
+
+// const channel = require("../models/channel");
 
 //ORM db객체 참조하기
 var db = require("../models/index");
 
 // jwt 토큰 생성을 위한 패키지 참조
-const jwt = require('jsonwebtoken');
-
-
+const jwt = require("jsonwebtoken");
 
 // 파일 업로드를 위한 multer 객체 참조하기
 var multer = require("multer");
@@ -29,8 +29,6 @@ var storage = multer.diskStorage({
 
 //일반 업로드처리 객체 생성
 var upload = multer({ storage: storage });
-
-
 
 /*
 - 신규 회원정보 등록처리 요청과 응답 라우팅메소드
@@ -54,6 +52,18 @@ router.post("/entry", async (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
     const name = req.body.name;
+
+
+    //Step1-1: 신규회원 메일주소 중복검사 처리하기
+    const existMember = await db.Member.findOne({ where: { email: email } });
+
+    //동일한 메일주소 사용자가 있는경우 에러처리 데이터 반환
+    if (existMember) {
+      apiResult.code = 400;
+      apiResult.data = null;
+      apiResult.msg = "ExistMember";
+      return res.json(apiResult);
+    }
 
     const bcryptedPassword = await bcrypt.hash(password, 12);
 
@@ -122,14 +132,17 @@ router.post("/login", async (req, res) => {
         // 암호가 일치하는 경우
         // Step4: 사용자 메일주소/암호가 일치하는 경우 현재 로그인 사용자의 주요 정보를 Json 데이터로 생성
         const tokenJsonData = {
-            member_id: member.member_id,
-            email: member.email,
-            name: member.name,
-            profile_img_path: member.profile_img_path,
+          member_id: member.member_id,
+          email: member.email,
+          name: member.name,
+          profile_img_path: member.profile_img_path,
         };
         // Step5: 인증된 사용자 json 데이터를 JWT 토큰내에 담아 JWT 토큰 문자열을 생성
-        const token = await jwt.sign(tokenJsonData, process.env.JWT_AUTH_KEY, {expiresIn: '24h', issuer: "CBNU"});
-        
+        const token = await jwt.sign(tokenJsonData, process.env.JWT_AUTH_KEY, {
+          expiresIn: "24h",
+          issuer: "CBNU",
+        });
+
         // Step6: JWT 토큰 문자열을 프론트엔드로 반환합니다.
         apiResult.code = 200;
         apiResult.data = token;
@@ -146,8 +159,6 @@ router.post("/login", async (req, res) => {
       apiResult.data = null;
       apiResult.msg = "Not Exist Email";
     }
-
-
   } catch (error) {
     console.log("/api/member/login 호출에러발생:", error.message);
 
@@ -162,7 +173,6 @@ router.post("/login", async (req, res) => {
   res.json(apiResult);
 });
 
-
 /*
 - 현재 로그인한 사용자의 상세 프로필 정보를 DB에서 조회하여 반환하는 라우팅메소드
 - 호출주소: http://localhost:5000/api/member/profile
@@ -170,42 +180,43 @@ router.post("/login", async (req, res) => {
 - 응답결과: 프론트엔드에서 제공한 JWT토큰 값을 전달받아 해당 사용자 메일주소로 DB에서 조회한 결과값 반환
 */
 router.get("/profile", async (req, res) => {
-    let apiResult = {
-        code: 400, //요청상태코드: 200:정상처리 400:요청리소스가 없을때 500:서버개발자코딩에러
-        data: null, //백엔드에서 프론트엔드로 전달한 데이터
-        msg: "", //처리결과 코멘트(백엔드개발자가 프론트엔드 개발자에게 알려주는 코멘트메시지)
-      };
-      try {
-        // Step1: 웹브라우저에서 JWT 토큰 값을 추출합니다.
-        // 토큰 값 예시 : "Bearer asdasdqwrgqedr213213adsfasdf"
-        var token = req.headers.authorization.split('Bearer ')[1];
+  let apiResult = {
+    code: 400, //요청상태코드: 200:정상처리 400:요청리소스가 없을때 500:서버개발자코딩에러
+    data: null, //백엔드에서 프론트엔드로 전달한 데이터
+    msg: "", //처리결과 코멘트(백엔드개발자가 프론트엔드 개발자에게 알려주는 코멘트메시지)
+  };
+  try {
+    // Step1: 웹브라우저에서 JWT 토큰 값을 추출합니다.
+    // 토큰 값 예시 : "Bearer asdasdqwrgqedr213213adsfasdf"
+    var token = req.headers.authorization.split("Bearer ")[1];
 
-        // Step2: JWT 토큰 문자열내에서 인증 사용자 JSON 데이터를 추출합니다.
-        // jwt.verify('토큰문자열', 토큰생성시사용한 인증키값) 실행 후 토큰 내 저장된 Json 데이터를 반환
-        var loginMemberData = await jwt.verify(token, process.env.JWT_AUTH_KEY);
+    // Step2: JWT 토큰 문자열내에서 인증 사용자 JSON 데이터를 추출합니다.
+    // jwt.verify('토큰문자열', 토큰생성시사용한 인증키값) 실행 후 토큰 내 저장된 Json 데이터를 반환
+    var loginMemberData = await jwt.verify(token, process.env.JWT_AUTH_KEY);
 
-        // Step3: 토큰 페이로드 영역에서 추출한 현재 로그인 사용자 고유번호를 기준으로 DB에서 단일 사용자 조회
-        var dbMember = await db.Member.findOne({where:{member_id:loginMemberData.member_id}});
+    // Step3: 토큰 페이로드 영역에서 추출한 현재 로그인 사용자 고유번호를 기준으로 DB에서 단일 사용자 조회
+    var dbMember = await db.Member.findOne({
+      where: { member_id: loginMemberData.member_id },
+    });
 
-        dbMember.member_password = ""; // 사용자 암호값을 프론트에 전달할 필요 X
+    dbMember.member_password = ""; // 사용자 암호값을 프론트에 전달할 필요 X
 
-        // Step4: 단일 사용자 정보를 프론트엔드로 전달한다.
-        apiResult.code = 200;
-        apiResult.data = dbMember;
-        apiResult.msg = "Ok";
+    // Step4: 단일 사용자 정보를 프론트엔드로 전달한다.
+    apiResult.code = 200;
+    apiResult.data = dbMember;
+    apiResult.msg = "Ok";
+  } catch (error) {
+    // console.log("/api/member/profile 호출에러발생:", error.message);
 
-      } catch (error) {
-        // console.log("/api/member/profile 호출에러발생:", error.message);
+    //중요: 백엔드의 구체적인 에러내용을 프론트엔드로 전송하는것은 바로 사직서를 동일하다.(보안적위험제공)
+    //왜?? DB등록처리시 먼저 DB서버를 연결하는데 DB연결실패하면 연결에러메시지를 제공하는데 이런정보내에 보안적으로 공유하면 안되는
+    //정보들이 존재합니다.
+    apiResult.code = 500;
+    apiResult.data = null;
+    apiResult.msg = "Server Error!";
+  }
 
-        //중요: 백엔드의 구체적인 에러내용을 프론트엔드로 전송하는것은 바로 사직서를 동일하다.(보안적위험제공)
-        //왜?? DB등록처리시 먼저 DB서버를 연결하는데 DB연결실패하면 연결에러메시지를 제공하는데 이런정보내에 보안적으로 공유하면 안되는
-        //정보들이 존재합니다.
-        apiResult.code = 500;
-        apiResult.data = null;
-        apiResult.msg = "Server Error!";
-      };
-
-      res.json(apiResult);
+  res.json(apiResult);
 });
 
 /*
@@ -214,7 +225,7 @@ router.get("/profile", async (req, res) => {
 - 호출방식: Post
 - 응답결과: 프론트엔드에서 첨부한 이미지 파일을 업로드 처리하고 업로드된 정보를 반환한다.
 */
-router.post("/profile/upload", upload.single('file'), async(req, res) => {
+router.post("/profile/upload", upload.single("file"), async (req, res) => {
   let apiResult = {
     code: 400, //요청상태코드: 200:정상처리 400:요청리소스가 없을때 500:서버개발자코딩에러
     data: null, //백엔드에서 프론트엔드로 전달한 데이터
@@ -231,7 +242,7 @@ router.post("/profile/upload", upload.single('file'), async(req, res) => {
       const originalFileName = uploadFile.originalname; // 사용자가 업로드한 파일명 (a.png)
       const fileSize = uploadFile.size;
       const mimeType = uploadFile.mimetype;
-  
+
       const file = {
         file_name: fileName,
         file_path: filePath,
@@ -244,8 +255,6 @@ router.post("/profile/upload", upload.single('file'), async(req, res) => {
       apiResult.data = file;
       apiResult.msg = "Ok";
     }
-
-    
   } catch (error) {
     apiResult.code = 500;
     apiResult.data = null;
