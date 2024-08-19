@@ -1,7 +1,46 @@
-import { useRouter } from 'next/router';
+import axios from "axios";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 
+export interface IBlog {
+  article_id: number;
+  board_type_code: number;
+  title: string;
+  article_type_code: number;
+  contents: string;
+  view_count: number;
+  ip_address: string;
+  is_display: number;
+  reg_date: string;
+  reg_member_id: number;
+  edit_date: string;
+  edit_member_id: number;
+};
+// 아래 컴포넌트는 SSR방식으로 최초 화면 렌더링 처리시 사용
+// const BlogList = ({blogs}: {blogs:IBlog}) => {
 const BlogList = () => {
   const router = useRouter();
+
+  const [blogs, setBlogs] = useState<IBlog[]>([]);
+
+  // CSR 방식으로 최초 화면 마운트시 웹브라우저 서버 RESTAPI 호출 게시글 목록 조회 바인딩처리하기
+  useEffect( () => {
+    getBlogList();
+  }, []);
+
+  async function getBlogList() {
+    try {
+      const res = await axios.get('http://localhost:5000/api/article/list');
+      if(res.data.code == 200) {
+        setBlogs(res.data.data);
+      } else {
+        console.error('서버 에러 발생...', res.data.msg);
+      }
+
+    } catch (err) {
+      console.error('백엔드 API 호출 에러 발생.');
+    }
+  }
 
   return (
     <div className="px-4 sm:px-6 lg:px-8">
@@ -18,7 +57,7 @@ const BlogList = () => {
           <button
             type="button"
             onClick={() => {
-              router.push('/mypage/blog/create');
+              router.push("/mypage/blog/create");
             }}
             className="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
           >
@@ -62,23 +101,23 @@ const BlogList = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                <tr>
-                  <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">
-                    1
-                  </td>
-                  <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                    게시글 제목입니다.
-                  </td>
-                  <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                    게시중
-                  </td>
-                  <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                    111.111.111.111
-                  </td>
-                  <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
-                    2024-08-20
-                  </td>
-                </tr>
+                {blogs.map((blog, index) => (
+                  <tr key={index}>
+                    <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">{blog.article_id}</td>
+                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                      {blog.title}
+                    </td>
+                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                      {blog.is_display ? "게시중" : "게시안함"}
+                    </td>
+                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                      {blog.ip_address}
+                    </td>
+                    <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
+                      {blog.reg_date}
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
@@ -87,5 +126,12 @@ const BlogList = () => {
     </div>
   );
 };
+
+//SSR방식으로 최초 화면 렌더링시 서버에서 데이터를 조회하고 서버에서 HTML소스를 생성해서 가져온다.
+// export const getServerSideProps = async () => {
+//   const res = await fetch("http://localhost:5000/api/article/list");
+//   const result = await res.json();
+//   return { props: { blogs: result.data } };
+// };
 
 export default BlogList;

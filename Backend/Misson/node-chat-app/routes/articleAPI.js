@@ -4,6 +4,8 @@ var router = express.Router();
 //ORM db객체 참조하기
 var db = require("../models/index");
 
+var jwt = require('jsonwebtoken');
+
 /*
 -전체 게시글 목록 조회 요청 및 응답처리 API 라우팅 메소드
 -호출주소: http://localhost:5000/api/article/list
@@ -44,6 +46,12 @@ router.post("/create", async (req, res) => {
     data: null,
     msg: "",
   };
+
+  // Step 0: 프론트엔드엣 전달된 JWT토큰값에서 로그인 사용자 정보 추출하기
+  var token = req.headers.authorization.split('Bearer ')[1];
+
+  // 사용자 토큰정보 유효성 검사 후 정상적이면 토큰내에 사용자 인증 json 데이터 반환합니다.
+  var loginMember = await jwt.verify(token, process.env.JWT_AUTH_KEY);
 
   try {
     //Ste1: 프론트엔드에서 전달한 데이터 추출하기

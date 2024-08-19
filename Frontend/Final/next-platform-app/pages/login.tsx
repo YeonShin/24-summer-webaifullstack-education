@@ -1,59 +1,72 @@
+//로그인 화면 컴포넌트
 
-import { useState } from "react";
+import { useState } from 'react';
 
+import { useRouter } from 'next/router';
+
+//로그인 페이지 컴포넌트
 const Login = () => {
-    //로그인 사용자 정보 상태관리 데이터 초기화
-    const [member, setMember] = useState({
-      email: '',
-      password: '',
-    });
-  
-    //로그인 UI요소(메일주소/암호) 사용자 입력시 데이터 동기화 처리 함수
-    const memberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      setMember({ ...member, [e.target.name]: e.target.value });
-    };
-  
-    //로그인 버튼 클릭시 로그인 정보 백엔드 API전달하여 JWT토큰정보를 받아온다.
-    const loginSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-      //백엔드 Login RESTFul API를 호출한다.
+  //라우팅 객체 생성하기
+  const router = useRouter();
 
-      try {
-        const response = await fetch('http://localhost:5000/api/member/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json'},
-          body: JSON.stringify(member),
-        });
+  //로그인 사용자 정보 상태관리 데이터 초기화
+  const [member, setMember] = useState({
+    email: '',
+    password: '',
+  });
 
-        const result = await response.json();
-        console.log("Login API에서 반환한 요청 결과값:", result);
+  //로그인 UI요소(메일주소/암호) 사용자 입력시 데이터 동기화 처리 함수
+  const memberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setMember({ ...member, [e.target.name]: e.target.value });
+  };
 
-        if(result.code == 200) {
-          console.log("정상 로그인 완료");
-          // 백엔드에서 제공한 JWT 토큰값 웹브라우저의 localstorage 저장소에 저장
-          localStorage.setItem('token', result.data);
+  //로그인 버튼 클릭시 로그인 정보 백엔드 API전달하여 JWT토큰정보를 받아온다.
+  const loginSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    //백엔드 Login RESTFul API를 호출한다.
 
-        } else {
-          if (result.code == 400 && result.msg == 'NotExistEmail') {
-            alert("해당 메일주소가 존재하지 않습니다.");
-            return false;
-          } 
-          if (result.code == 400 && result.msg == 'InCorrectPassword') {
-            alert('사용자 암호가 일치하지 않습니다.');
-            return false;
-          }
+    //Case1: 웹브라우저 자바스크립트엔진에 탑재되어 있는 fecth함수를 통해 백엔드 RESTFul Login api를 호출한다.
+    try {
+      const response = await fetch('http://localhost:5000/api/member/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(member),
+      });
 
-          if (result.code == 500) {
-            alert('서버 에러가 발생했습니다.\n 관리자에게 문의하세요.');
-            return false;
-          }
+      //통신 결과에서 로그인 API에서 반환한 JSON데이터 값 추출하기
+      const result = await response.json();
+      console.log('LOGIN API에서 반환한 요청 결과값:', result);
 
+      if (result.code == 200) {
+        console.log('정상적으로 로그인 완료!!!!!');
+        //Step1:백엔드에서 제공한 JWT토큰값 웹브라우저의 localStorage 저장소에 저장
+        localStorage.setItem('token', result.data);
+
+        //Step2:추후 Context API의 전역데이터로 사용자 정보 저장
+
+        //Step3:메인페이지 또는 마이페이지 로 이동 처리
+        router.push('/');
+      } else {
+        if (result.code == 400 && result.msg == 'NotExistEmail') {
+          alert('해당 메일주소가 존재하지 않습니다.');
+          return false;
         }
-      } catch (err) {
-        console.error(err);
-      }
 
-    };
+        if (result.code == 400 && result.msg == 'InCorrectPasword') {
+          alert('사용자 암호가 일치하지 않습니다.');
+          return false;
+        }
+
+        if (result.code == 500) {
+          alert('서버 에러가 발생했습니다. \n 관리자에게 문의하세요.');
+          return false;
+        }
+      }
+    } catch (err) {
+      console.error('백엔드 API 호출에러 발생:', err);
+    }
+  };
+
   return (
     <>
       <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
@@ -69,7 +82,9 @@ const Login = () => {
         </div>
 
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+          {/* 로그인 화면 영역  */}
           <form className="space-y-6" onSubmit={loginSubmit}>
+            {/* 메일주소 입력영역 */}
             <div>
               <label
                 htmlFor="email"
@@ -91,6 +106,7 @@ const Login = () => {
               </div>
             </div>
 
+            {/* 암호입력영역 */}
             <div>
               <div className="flex items-center justify-between">
                 <label
@@ -122,6 +138,7 @@ const Login = () => {
               </div>
             </div>
 
+            {/* 로그인 버튼 영역 */}
             <div>
               <button
                 type="submit"
@@ -133,7 +150,7 @@ const Login = () => {
           </form>
 
           <p className="mt-10 text-center text-sm text-gray-500">
-            Not a member?{" "}
+            Not a member?{' '}
             <a
               href="#"
               className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500"
