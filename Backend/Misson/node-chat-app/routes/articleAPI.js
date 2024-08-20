@@ -4,7 +4,7 @@ var router = express.Router();
 //ORM db객체 참조하기
 var db = require("../models/index");
 
-var jwt = require('jsonwebtoken');
+var jwt = require("jsonwebtoken");
 
 /*
 -전체 게시글 목록 조회 요청 및 응답처리 API 라우팅 메소드
@@ -47,13 +47,12 @@ router.post("/create", async (req, res) => {
     msg: "",
   };
 
-  // Step 0: 프론트엔드엣 전달된 JWT토큰값에서 로그인 사용자 정보 추출하기
-  var token = req.headers.authorization.split('Bearer ')[1];
-
-  // 사용자 토큰정보 유효성 검사 후 정상적이면 토큰내에 사용자 인증 json 데이터 반환합니다.
-  var loginMember = await jwt.verify(token, process.env.JWT_AUTH_KEY);
-
   try {
+    // Step 0: 프론트엔드엣 전달된 JWT토큰값에서 로그인 사용자 정보 추출하기
+    var token = req.headers.authorization.split("Bearer ")[1];
+
+    // 사용자 토큰정보 유효성 검사 후 정상적이면 토큰내에 사용자 인증 json 데이터 반환합니다.
+    var loginMember = await jwt.verify(token, process.env.JWT_AUTH_KEY);
     //Ste1: 프론트엔드에서 전달한 데이터 추출하기
     const title = req.body.title;
     const contents = req.body.contents;
@@ -72,7 +71,7 @@ router.post("/create", async (req, res) => {
         req.headers["x-forwarded-for"] || req.connection.remoteAddress, //로컬개발환경인 경우 ::1 이렇게 ip주소가 추출됩니다.
       is_display_code: display,
       reg_date: Date.now(),
-      reg_member_id: 1, //추후 토큰에서 사용자 정보추출하기
+      reg_member_id: loginMember.member_id, //추후 토큰에서 사용자 정보추출하기
     };
 
     //Step3: db article 테이블에 신규 게시글정보 등록처리
