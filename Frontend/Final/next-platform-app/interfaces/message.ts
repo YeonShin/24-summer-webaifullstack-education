@@ -24,7 +24,6 @@ export interface IChannel {
   channel_name: string;
   channel_img_path: string;
   user_limit: number;
-  0;
   channel_desc: string;
   channel_state_code: ChannelState;
   reg_date: string;
