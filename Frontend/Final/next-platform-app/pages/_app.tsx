@@ -8,6 +8,7 @@ import type { AppProps } from 'next/app';
 import MainLayout from '@/components/main-layout';
 import NoneLayout from '@/components/none-layout';
 import MyPageLayout from '@/components/mypage-layout';
+import GlobalProvider from '@/library/globalContext';
 
 import { useRouter } from 'next/router';
 
@@ -83,6 +84,6 @@ export default function App({ Component, pageProps }: AppProps) {
     //   )}
     // </>
 
-    <>{renderLayoutOnPath()}</>
+    <GlobalProvider>{renderLayoutOnPath()}</GlobalProvider>
   );
 }
