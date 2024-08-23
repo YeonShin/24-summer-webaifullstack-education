@@ -94,3 +94,5 @@ app.set("port", process.env.PORT || 5001);
 
 //노드앱이 작동되는 서버 객체 생성
 var server = app.listen(app.get("port"), function () {});
+
+module.exports = app;
