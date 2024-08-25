@@ -117,7 +117,7 @@
 				};
 
 				// Step3: UI요소에서 추출한 Json 데이터를 백엔드 RESTful API에 전달해서 회원가입 처리한다.
-				$.post("http://15.164.81.212/api/member/login", member).done(function(result) {
+				$.post("http://localhost:5000/api/member/login", member).done(function(result) {
 					console.log("백엔드에서의 처리 결과 값 확인하기", result);
 
 					if (result.code == 200) {
